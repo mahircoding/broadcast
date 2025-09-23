@@ -1,22 +1,35 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
-    Volt::route('login', 'auth.login')
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    Volt::route('register', 'auth.register')
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 
-    Volt::route('forgot-password', 'auth.forgot-password')
+    Route::post('register', [RegisteredUserController::class, 'store']);
+
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
-    Volt::route('reset-password/{token}', 'auth.reset-password')
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->name('password.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -31,5 +44,5 @@ Route::middleware('auth')->group(function () {
         ->name('password.confirm');
 });
 
-Route::post('logout', App\Livewire\Actions\Logout::class)
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');

@@ -12,7 +12,6 @@
     @if (session('status'))
         <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
             <div class="flex items-center">
-                <i class="fas fa-check-circle mr-2"></i>
                 {{ session('status') }}
             </div>
         </div>
@@ -21,7 +20,6 @@
     @if (session('error'))
         <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
             <div class="flex items-center">
-                <i class="fas fa-exclamation-circle mr-2"></i>
                 {{ session('error') }}
             </div>
         </div>
@@ -41,14 +39,14 @@
     <!-- Reset Password Form -->
     <form method="POST" action="{{ route('password.store') }}" class="space-y-6">
         @csrf
-        
+
         <!-- Password Reset Token -->
         <input type="hidden" name="token" value="{{ $token }}">
 
         <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-semibold text-gray-800 mb-2">
-                <i class="fas fa-envelope mr-2 text-purple-600"></i>Email Address
+                Email Address
             </label>
             <input
                 id="email"
@@ -63,7 +61,7 @@
             >
             @if (session('errors') && session('errors')->has('email'))
                 <p class="text-red-600 text-sm mt-2 font-medium">
-                    <i class="fas fa-exclamation-circle mr-1"></i>{{ session('errors')->first('email') }}
+                    {{ session('errors')->first('email') }}
                 </p>
             @endif
         </div>
@@ -71,7 +69,7 @@
         <!-- Password -->
         <div>
             <label for="password" class="block text-sm font-semibold text-gray-800 mb-2">
-                <i class="fas fa-lock mr-2 text-purple-600"></i>Password Baru
+                Password Baru
             </label>
             <div class="relative">
                 <input
@@ -84,7 +82,7 @@
                     class="auth-input w-full px-4 py-3 pr-12 rounded-lg focus:outline-none font-medium text-gray-800 placeholder-gray-500"
                 >
                 <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none" onclick="togglePassword('password', 'togglePasswordIcon')">
-                    <i class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors duration-200" id="togglePasswordIcon"></i>
+                    <span class="text-gray-400 hover:text-gray-600 transition-colors duration-200" id="togglePasswordIcon">👁️</span>
                 </button>
             </div>
             @if (session('errors') && session('errors')->has('password'))
@@ -109,8 +107,8 @@
                     placeholder="Ulangi password baru"
                     class="auth-input w-full px-4 py-3 pr-12 rounded-lg focus:outline-none font-medium text-gray-800 placeholder-gray-500"
                 >
-                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none" onclick="togglePassword('password_confirmation', 'togglePasswordIcon2')">
-                    <i class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors duration-200" id="togglePasswordIcon2"></i>
+                                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none" onclick="togglePassword('password_confirmation', 'togglePasswordConfirmationIcon')">
+                    <span class="text-gray-400 hover:text-gray-600 transition-colors duration-200" id="togglePasswordConfirmationIcon">👁️</span>
                 </button>
             </div>
             @if (session('errors') && session('errors')->has('password_confirmation'))
@@ -135,19 +133,17 @@
 </div>
 
 <script>
-function togglePassword(inputId, iconId) {
-    const input = document.getElementById(inputId);
-    const icon = document.getElementById(iconId);
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
+    function togglePassword(fieldId, iconId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(iconId);
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.textContent = '🙈';
+        } else {
+            field.type = 'password';
+            icon.textContent = '👁️';
+        }
     }
-}
 </script>
 @endsection

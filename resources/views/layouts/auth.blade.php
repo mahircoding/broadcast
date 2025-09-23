@@ -3,9 +3,6 @@
     <head>
         @include('partials.head')
 
-        <!-- FontAwesome for Icons -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
         <style>
             .auth-gradient {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -84,7 +81,6 @@
                 border-radius: 6px;
                 transition: all 0.2s ease;
                 min-width: 32px;
-                height: 32px;
             }
 
             .absolute.inset-y-0.right-0 button:hover,
@@ -243,11 +239,11 @@
                 .auth-gradient {
                     padding: 1rem;
                 }
-                
+
                 .auth-card {
                     padding: 1.25rem;
                 }
-                
+
                 .auth-header {
                     font-size: 1.5rem;
                 }
@@ -259,13 +255,13 @@
                     background: rgba(17, 24, 39, 0.95);
                     color: #f9fafb;
                 }
-                
+
                 .auth-input {
                     background: rgba(31, 41, 55, 0.8);
                     border-color: #374151;
                     color: #f9fafb;
                 }
-                
+
                 .auth-input::placeholder {
                     color: #9ca3af;
                 }

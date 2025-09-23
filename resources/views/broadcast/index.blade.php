@@ -124,7 +124,7 @@
                                         <br><small class="text-muted">Gunakan parameter khusus untuk menyapa penerima dengan nama mereka</small>
                                     </label>
                                 </div>
-                                
+
                                 <div id="personalizationHelp" style="display: none;" class="mt-3">
                                     <div class="alert alert-info mb-0">
                                         <h6><i class="fas fa-info-circle me-2"></i>Parameter yang bisa digunakan:</h6>

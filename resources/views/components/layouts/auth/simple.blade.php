@@ -2,6 +2,10 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
+
+        <!-- FontAwesome for Icons -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
         <style>
             .auth-gradient {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -44,6 +48,64 @@
             .auth-input::placeholder {
                 color: #6b7280;
                 opacity: 1;
+            }
+
+            /* Input dengan padding kanan untuk toggle button */
+            .auth-input.pr-12 {
+                padding-right: 48px !important;
+            }
+
+            /* Password Toggle Button Positioning */
+            .relative {
+                position: relative;
+            }
+
+            .absolute.inset-y-0.right-0 {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                display: flex;
+                align-items: center;
+                padding-right: 12px;
+                pointer-events: auto;
+                z-index: 10;
+            }
+
+            .absolute.inset-y-0.right-0 button,
+            button.absolute.inset-y-0.right-0 {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+                min-width: 32px;
+            }
+
+            .absolute.inset-y-0.right-0 button:hover,
+            button.absolute.inset-y-0.right-0:hover {
+                background-color: rgba(99, 102, 241, 0.1);
+            }
+
+            .absolute.inset-y-0.right-0 button:focus,
+            button.absolute.inset-y-0.right-0:focus {
+                outline: 2px solid rgba(99, 102, 241, 0.3);
+                outline-offset: 2px;
+            }
+
+            .absolute.inset-y-0.right-0 i {
+                font-size: 16px;
+                color: #9ca3af;
+                transition: color 0.2s ease;
+            }
+
+            .absolute.inset-y-0.right-0 button:hover i,
+            button.absolute.inset-y-0.right-0:hover i {
+                color: #6366f1;
             }            .auth-button {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 transition: all 0.3s ease;
@@ -157,13 +219,9 @@
             }
 
             /* Force dark text in auth card */
-            .auth-card h1,
-            .auth-card h2,
-            .auth-card h3,
-            .auth-card p,
             .auth-card label,
             .auth-card span {
-                color: #1f2937 !important;
+                color: #ffffff !important;
             }
 
             .auth-card .text-gray-800 {

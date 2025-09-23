@@ -23,7 +23,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public function mount(string $token): void
     {
         $this->token = $token;
-
         $this->email = request()->string('email');
     }
 
@@ -38,9 +37,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $this->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) {
@@ -53,63 +49,148 @@ new #[Layout('components.layouts.auth')] class extends Component {
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        if ($status !== Password::PasswordReset) {
-            $this->addError('email', __($status));
-
+        if ($status !== Password::PASSWORD_RESET) {
+            session()->flash('error', 'Gagal reset password. Token mungkin sudah expired atau tidak valid.');
             return;
         }
 
-        Session::flash('status', __($status));
-
+        Session::flash('status', 'Password berhasil direset! Silakan login dengan password baru Anda.');
         $this->redirectRoute('login', navigate: true);
     }
 }; ?>
 
-<div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Reset password')" :description="__('Please enter your new password below')" />
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="text-center">
+        <h2 class="text-2xl font-bold text-gray-800 auth-header">Reset Password</h2>
+        <p class="text-gray-600 mt-2">Masukkan password baru Anda</p>
+    </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="text-center" :status="session('status')" />
-
-    <form method="POST" wire:submit="resetPassword" class="flex flex-col gap-6">
-        <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email')"
-            type="email"
-            required
-            autocomplete="email"
-        />
-
-        <!-- Password -->
-        <flux:input
-            wire:model="password"
-            :label="__('Password')"
-            type="password"
-            required
-            autocomplete="new-password"
-            :placeholder="__('Password')"
-            viewable
-        />
-
-        <!-- Confirm Password -->
-        <flux:input
-            wire:model="password_confirmation"
-            :label="__('Confirm password')"
-            type="password"
-            required
-            autocomplete="new-password"
-            :placeholder="__('Confirm password')"
-            viewable
-        />
-
-        <div class="flex items-center justify-end">
-            <flux:button type="submit" variant="primary" class="w-full" data-test="reset-password-button">
-                {{ __('Reset password') }}
-            </flux:button>
+    <!-- Alert Messages -->
+    @if (session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                {{ session('error') }}
+            </div>
         </div>
+    @endif
+
+    <!-- Reset Password Form -->
+    <form wire:submit="resetPassword" class="space-y-6">
+        <!-- Email Input (readonly) -->
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+            </label>
+            <input
+                wire:model="email"
+                type="email"
+                id="email"
+                name="email"
+                class="auth-input w-full px-4 py-3 rounded-lg bg-gray-50 cursor-not-allowed @error('email') border-red-500 @enderror"
+                readonly
+            >
+            @error('email')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Password Input -->
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-lock mr-1"></i>
+                Password Baru
+            </label>
+            <div class="relative">
+                <input
+                    wire:model="password"
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="auth-input w-full px-4 py-3 pr-12 rounded-lg focus:outline-none @error('password') border-red-500 @enderror"
+                    placeholder="Masukkan password baru"
+                    required
+                    autocomplete="new-password"
+                >
+                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none" onclick="togglePassword('password', 'togglePasswordIcon1')">
+                    <i class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                       id="togglePasswordIcon1"></i>
+                </button>
+            </div>
+            @error('password')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Confirm Password Input -->
+        <div>
+            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-lock mr-1"></i>
+                Konfirmasi Password
+            </label>
+            <div class="relative">
+                <input
+                    wire:model="password_confirmation"
+                    type="password"
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    class="auth-input w-full px-4 py-3 pr-12 rounded-lg focus:outline-none @error('password_confirmation') border-red-500 @enderror"
+                    placeholder="Konfirmasi password baru"
+                    required
+                    autocomplete="new-password"
+                >
+                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none" onclick="togglePassword('password_confirmation', 'togglePasswordIcon2')">
+                    <i class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                       id="togglePasswordIcon2"></i>
+                </button>
+            </div>
+            @error('password_confirmation')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Submit Button -->
+        <button
+            type="submit"
+            class="auth-button w-full py-3 px-4 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200"
+            wire:loading.attr="disabled"
+        >
+            <span wire:loading.remove>
+                <i class="fas fa-save mr-2"></i>
+                Reset Password
+            </span>
+            <span wire:loading>
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Mereset...
+            </span>
+        </button>
     </form>
+
+    <!-- Back to Login -->
+    <div class="text-center">
+        <p class="text-gray-600">
+            <a href="{{ route('login') }}" wire:navigate class="text-purple-600 hover:text-purple-800 font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-1"></i>
+                Kembali ke Login
+            </a>
+        </p>
+    </div>
 </div>
+
+<script>
+    function togglePassword(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(iconId);
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        }
+    }
+</script>

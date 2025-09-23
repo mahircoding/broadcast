@@ -150,7 +150,7 @@ class WaboxService
         foreach ($contacts as $index => $contact) {
             // Replace placeholders with actual contact data
             $personalizedMessage = $this->replacePlaceholders($messageTemplate, $contact);
-            
+
             // Generate unique custom_uid for each message
             $customUid = 'personalized_' . time() . '_' . $totalSent . '_' . rand(1000, 9999);
             $result = $this->sendMessage($contact->formatted_phone, $personalizedMessage, $customUid);

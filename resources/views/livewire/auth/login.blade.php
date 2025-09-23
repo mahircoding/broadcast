@@ -92,7 +92,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-semibold text-gray-800 mb-2">
-                <i class="fas fa-envelope mr-2 text-purple-600"></i>Email Address
+                Email Address
             </label>
             <input
                 wire:model="email"
@@ -106,7 +106,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             >
             @error('email')
                 <p class="text-red-600 text-sm mt-2 font-medium">
-                    <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                    {{ $message }}
                 </p>
             @enderror
         </div>
@@ -114,7 +114,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <!-- Password -->
         <div>
             <label for="password" class="block text-sm font-semibold text-gray-800 mb-2">
-                <i class="fas fa-lock mr-2 text-purple-600"></i>Password
+                Password
             </label>
             <div class="relative">
                 <input
@@ -124,17 +124,16 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     required
                     autocomplete="current-password"
                     placeholder="Masukkan password Anda"
-                    class="auth-input w-full px-4 py-3 rounded-lg focus:outline-none font-medium pr-12 text-gray-800 placeholder-gray-500"
+                    class="auth-input w-full px-4 py-3 pr-12 rounded-lg focus:outline-none font-medium text-gray-800 placeholder-gray-500"
                 >
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                    <i class="fas fa-eye-slash text-gray-500 cursor-pointer hover:text-gray-700 transition-colors"
-                       onclick="togglePassword()"
+                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none" onclick="togglePassword()">
+                    <i class="fas fa-eye-slash text-gray-400 hover:text-gray-600 transition-colors duration-200"
                        id="togglePasswordIcon"></i>
-                </div>
+                </button>
             </div>
             @error('password')
                 <p class="text-red-600 text-sm mt-2 font-medium">
-                    <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                    {{ $message }}
                 </p>
             @enderror
         </div>
@@ -155,10 +154,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         <!-- Submit Button -->
         <button type="submit" class="auth-button w-full text-white font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all">
-            <i class="fas fa-sign-in-alt mr-2"></i>
             <span wire:loading.remove>Masuk</span>
             <span wire:loading>
-                <i class="fas fa-spinner fa-spin mr-2"></i>Sedang masuk...
+                Sedang masuk...
             </span>
         </button>
     </form>

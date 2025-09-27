@@ -8,6 +8,7 @@ class BroadcastLog extends Model
 {
     protected $fillable = [
         'message',
+        'image_path',
         'recipients',
         'total_sent',
         'total_success',
@@ -27,5 +28,35 @@ class BroadcastLog extends Model
     public function contacts()
     {
         return Contact::whereIn('id', $this->recipients ?? []);
+    }
+
+    /**
+     * Check if broadcast has an image
+     */
+    public function hasImage(): bool
+    {
+        return !empty($this->image_path) && file_exists(storage_path('app/public/' . $this->image_path));
+    }
+
+    /**
+     * Get the full URL for the image
+     */
+    public function getImageUrl(): ?string
+    {
+        if ($this->hasImage()) {
+            return asset('storage/' . $this->image_path);
+        }
+        return null;
+    }
+
+    /**
+     * Get the full path for the image
+     */
+    public function getImagePath(): ?string
+    {
+        if ($this->hasImage()) {
+            return storage_path('app/public/' . $this->image_path);
+        }
+        return null;
     }
 }

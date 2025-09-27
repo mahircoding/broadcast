@@ -38,6 +38,12 @@
                                 </td>
                                 <td>
                                     <p class="mb-1">{{ Str::limit($broadcast->message, 80) }}</p>
+                                    @if($broadcast->hasImage())
+                                        <small class="text-primary">
+                                            <i class="fas fa-image me-1"></i>
+                                            Dengan gambar
+                                        </small>
+                                    @endif
                                     @if(strlen($broadcast->message) > 80)
                                         <small class="text-muted">...</small>
                                     @endif

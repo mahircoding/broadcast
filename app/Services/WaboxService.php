@@ -74,6 +74,65 @@ class WaboxService
     }
 
     /**
+     * Send WhatsApp message with image to a single recipient
+     */
+    public function sendImageMessage(string $phoneNumber, string $message, string $imagePath, string $customUid = null): array
+    {
+        try {
+            // Generate custom_uid if not provided
+            if (!$customUid) {
+                $customUid = 'img_' . time() . '_' . rand(1000, 9999);
+            }
+
+            // Get the full URL for the image - use public URL that WaboxApp can access
+            // For production, make sure APP_URL is set to your domain
+            $baseUrl = config('app.url');
+            if ($baseUrl === 'http://localhost' || str_contains($baseUrl, '127.0.0.1')) {
+                // For local development, you need to use a public URL
+                // You can use ngrok, localtunnel, or deploy to a public server
+                throw new \Exception('Cannot send image from localhost. Please use a public URL or deploy to a server that WaboxApp can access.');
+            }
+            $imageUrl = $baseUrl . '/storage/' . $imagePath;
+
+            // Use POST method for sending images
+            $response = Http::timeout(60)->post("https://www.waboxapp.com/api/send/image", [
+                'token' => $this->token,
+                'uid' => $this->uid,
+                'to' => $this->formatPhoneNumber($phoneNumber),
+                'custom_uid' => $customUid,
+                'url' => $imageUrl,
+                'caption' => $message,
+            ]);
+
+            $result = $response->json();
+
+            if ($response->successful() && isset($result['success']) && $result['success'] === true) {
+                return [
+                    'success' => true,
+                    'message_id' => $result['custom_uid'] ?? $customUid,
+                    'custom_uid' => $result['custom_uid'] ?? $customUid,
+                    'response' => $result
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => $result['message'] ?? $result['error'] ?? 'Unknown error',
+                'response' => $result
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('WaboxApp Image API Error: ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'response' => null
+            ];
+        }
+    }
+
+    /**
      * Send broadcast message to multiple recipients
      */
     public function sendBroadcast(array $phoneNumbers, string $message): array
@@ -126,8 +185,63 @@ class WaboxService
                 'total_sent' => $totalSent,
                 'total_success' => $totalSuccess,
                 'total_failed' => $totalFailed,
-                'delay_used' => $broadcastDelay . ' seconds',
-                'batch_size' => $batchSize,
+            ]
+        ];
+    }
+
+    /**
+     * Send broadcast message with image to multiple recipients
+     */
+    public function sendBroadcastWithImage(array $phoneNumbers, string $message, string $imagePath): array
+    {
+        $results = [];
+        $totalSent = 0;
+        $totalSuccess = 0;
+        $totalFailed = 0;
+
+        // Get broadcast delay setting (default 3 seconds)
+        $broadcastDelay = \App\Models\Setting::get('wabox_broadcast_delay', 3);
+        $batchSize = \App\Models\Setting::get('wabox_batch_size', 50);
+
+        foreach ($phoneNumbers as $index => $phoneNumber) {
+            // Generate unique custom_uid for each message
+            $customUid = 'broadcast_img_' . time() . '_' . $totalSent . '_' . rand(1000, 9999);
+            $result = $this->sendImageMessage($phoneNumber, $message, $imagePath, $customUid);
+
+            $totalSent++;
+
+            if ($result['success']) {
+                $totalSuccess++;
+            } else {
+                $totalFailed++;
+            }
+
+            $results[] = [
+                'phone' => $phoneNumber,
+                'success' => $result['success'],
+                'message_id' => $result['message_id'] ?? null,
+                'custom_uid' => $result['custom_uid'] ?? $customUid,
+                'error' => $result['error'] ?? null,
+            ];
+
+            // Add configurable delay between messages to avoid rate limiting
+            if ($index < count($phoneNumbers) - 1) { // Don't delay after last message
+                sleep((int)$broadcastDelay);
+            }
+
+            // Add longer pause every batch to prevent being flagged as spam
+            if ($totalSent % $batchSize === 0 && $index < count($phoneNumbers) - 1) {
+                Log::info("Image batch completed ({$totalSent} messages sent), pausing for " . ($broadcastDelay * 3) . " seconds...");
+                sleep((int)$broadcastDelay * 3); // Longer pause between batches
+            }
+        }
+
+        return [
+            'results' => $results,
+            'summary' => [
+                'total_sent' => $totalSent,
+                'total_success' => $totalSuccess,
+                'total_failed' => $totalFailed,
             ]
         ];
     }

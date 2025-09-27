@@ -68,7 +68,19 @@
                 </h5>
             </div>
             <div class="card-body">
+                @if($broadcastLog->hasImage())
+                    <div class="mb-3">
+                        <strong>Gambar:</strong>
+                        <div class="mt-2">
+                            <img src="{{ $broadcastLog->getImageUrl() }}" 
+                                 alt="Broadcast Image" 
+                                 class="img-fluid rounded border" 
+                                 style="max-width: 300px; max-height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                @endif
                 <div class="border rounded p-3 bg-light">
+                    <strong>Pesan:</strong><br>
                     {!! nl2br(e($broadcastLog->message)) !!}
                 </div>
             </div>

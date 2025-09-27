@@ -38,7 +38,8 @@ class BroadcastController extends Controller
             'message' => 'required|string|max:1000',
             'recipients' => 'required|array|min:1',
             'recipients.*' => 'exists:contacts,id',
-            'use_personalization' => 'sometimes|boolean'
+            'use_personalization' => 'sometimes|boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120' // 5MB max
         ]);
 
         if ($validator->fails()) {
@@ -56,9 +57,16 @@ class BroadcastController extends Controller
             return back()->withErrors(['recipients' => 'Tidak ada penerima yang valid.'])->withInput();
         }
 
+        // Handle image upload
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('broadcast-images', 'public');
+        }
+
         // Create broadcast log
         $broadcastLog = BroadcastLog::create([
             'message' => $request->message,
+            'image_path' => $imagePath,
             'recipients' => $request->recipients,
             'total_sent' => 0,
             'total_success' => 0,
@@ -74,13 +82,22 @@ class BroadcastController extends Controller
             // Check if personalization is enabled
             $usePersonalization = $request->boolean('use_personalization', false);
 
-            // Send broadcast with or without personalization
+            // Send broadcast with or without personalization and images
             if ($usePersonalization) {
+                // Note: Personalized broadcasts with images not yet implemented
                 $result = $this->waboxService->sendPersonalizedBroadcast($recipients, $request->message);
             } else {
                 // Prepare phone numbers for regular broadcast
                 $phoneNumbers = $recipients->pluck('formatted_phone')->toArray();
-                $result = $this->waboxService->sendBroadcast($phoneNumbers, $request->message);
+                
+                // Check if image is included
+                if ($imagePath) {
+                    // Generate full URL for the image
+                    $imageUrl = asset('storage/' . $imagePath);
+                    $result = $this->waboxService->sendBroadcastWithImage($phoneNumbers, $request->message, $imageUrl);
+                } else {
+                    $result = $this->waboxService->sendBroadcast($phoneNumbers, $request->message);
+                }
             }
 
             // Update broadcast log with results
@@ -117,7 +134,8 @@ class BroadcastController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|max:1000',
-            'group' => 'nullable|string'
+            'group' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
 
         if ($validator->fails()) {
@@ -149,7 +167,8 @@ class BroadcastController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|max:1000',
-            'group' => 'required|string'
+            'group' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ]);
 
         if ($validator->fails()) {

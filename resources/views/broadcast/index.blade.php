@@ -23,7 +23,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('broadcast.send') }}" id="broadcastForm">
+                <form method="POST" action="{{ route('broadcast.send') }}" id="broadcastForm" enctype="multipart/form-data">
                     @csrf
 
                     <div class="mb-3">
@@ -40,6 +40,29 @@
                         @enderror
                         <div class="form-text">
                             <span id="messageCounter">0</span>/1000 karakter
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Gambar (Opsional)</label>
+                        <input type="file" 
+                               class="form-control @error('image') is-invalid @enderror" 
+                               id="image" 
+                               name="image" 
+                               accept="image/*">
+                        @error('image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">
+                            Format yang didukung: JPG, PNG, GIF. Maksimal 5MB.
+                        </div>
+                        <!-- Image Preview -->
+                        <div id="imagePreview" class="mt-2" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                            <button type="button" class="btn btn-sm btn-danger ms-2" onclick="removeImage()">
+                                <i class="fas fa-times"></i> Hapus
+                            </button>
                         </div>
                     </div>
 
@@ -442,7 +465,40 @@ $(document).ready(function() {
         // Show loading
         $('button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...');
     });
+
+    // Image preview functionality
+    $('#image').change(function() {
+        const file = this.files[0];
+        if (file) {
+            // Check file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                $(this).val('');
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                alert('File harus berupa gambar.');
+                $(this).val('');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#previewImg').attr('src', e.target.result);
+                $('#imagePreview').show();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 });
+
+function removeImage() {
+    $('#image').val('');
+    $('#imagePreview').hide();
+    $('#previewImg').attr('src', '');
+}
 
 function sendToGroup() {
     $('#groupModal').modal('show');

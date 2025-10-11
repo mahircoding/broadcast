@@ -100,9 +100,9 @@ class WaboxService
                 'uid' => $this->uid,
                 'to' => $this->formatPhoneNumber($phoneNumber),
                 'custom_uid' => $customUid,
-                'url' => 'https://bc.nusindo.id/storage/broadcast-images/VYGdd7D7LKURVYfcY50Wd7ZbGZ7nf0GKxZ3OAxJk.png',
-                'caption' => 'tes title image',
-                'description' => 'tes des image',
+                'url' => $imageUrl,
+                'caption' => $message,
+                'description' => $message,
             ]);
 
             $result = $response->json();
